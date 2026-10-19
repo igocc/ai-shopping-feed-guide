@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>多平台 AI 购物与对话直连实施方案</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+      --accent-soft: #eff6ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.7;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+    }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 36px 0;
+      margin-bottom: 36px;
+    }
+    header .container {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary-dark);
+      background: var(--accent-soft);
+      border: 1px solid #bfdbfe;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: 28px;
+      line-height: 1.35;
+      margin-bottom: 12px;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+    .lead {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+    .meta-links {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      font-size: 13.5px;
+    }
+    .meta-links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .meta-links a:hover {
+      text-decoration: underline;
+    }
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 30px 34px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #0f172a;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 16.5px;
+      margin: 22px 0 10px;
+      color: #1e293b;
+    }
+    p, ul, ol {
+      margin-bottom: 14px;
+      font-size: 14.5px;
+    }
+    ul, ol {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 18px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+      background: #fff;
+    }
+    th, td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #334155;
+      white-space: nowrap;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      background: var(--code-bg);
+      color: #b91c1c;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 16px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .callout {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+      font-size: 14px;
+    }
+    footer {
+      text-align: center;
+      font-size: 12.5px;
+      color: #94a3b8;
+      padding: 30px 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="badge">跨平台 AI 电商基础设施方案</div>
+    <h1>多平台 AI 购物与对话直连落地实施方案</h1>
+    <p class="lead">覆盖 Google Gemini、Microsoft Copilot、Meta AI、Perplexity、Claude · 脱离 Shopify 等建站 SaaS 限制，基于自有 Google/Meta Ads Feed 直接对接。</p>
+    <div class="meta-links">
+      <a href="https://github.com/igocc/ai-shopping-feed-guide" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
+      <a href="#architecture">系统架构 ↗</a>
+      <a href="#platforms">五大平台直连规范 ↗</a>
+      <a href="#schema-mapping">统一字段映射 ↗</a>
+      <a href="#steps">落地执行四步走 ↗</a>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- 架构部分 -->
+  <section class="section-card" id="architecture">
+    <h2>零、 核心底层架构：自建中央 Feed 托管节点</h2>
+    <p>通过独立对象存储（如 AWS S3、Cloudflare R2 或自建 Nginx），为两大标准 Feed 提供公开且固定不变的 HTTPS 访问链接：</p>
+    <pre><code>[企业商品主数据库 / 自建 ERP]
+          │
+          ▼ 每日定时导出（UTF-8）
+   ┌───────────────────────────┐
+   │ 1. google_feed.xml (GMC格式)│
+   │ 2. meta_feed.csv  (Meta格式)│
+   └─────────────┬─────────────┘
+                 ▼ 上传到独立对象存储（AWS S3 / Cloudflare R2 / Nginx）
+       https://feed.yourdomain.com/catalog/google_feed.xml
+       https://feed.yourdomain.com/catalog/meta_feed.csv
+                 │
+                 ├──► 1. Google Merchant Center ──► Google Gemini
+                 ├──► 2. Microsoft Merchant Center ─► Microsoft Copilot
+                 ├──► 3. Meta Commerce Manager ────► Meta AI
+                 ├──► 4. Perplexity Merchant ─────► Perplexity Shopping
+                 └──► 5. 本地轻量 MCP Server ──────► Claude (Anthropic)</code></pre>
+  </section>
+
+  <!-- 五大平台直连规范 -->
+  <section class="section-card" id="platforms">
+    <h2>一、 五大 AI 平台直连全景档案</h2>
+
+    <!-- Gemini -->
+    <h3>1. Google Gemini 直连（基于 Google Merchant Center）</h3>
+    <p><em>Gemini 的商品搜索、比价、推荐及 AI Overviews 的底层全部直接读取 Google Shopping Graph。</em></p>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr>
+            <th style="width: 130px;">申请入口</th>
+            <td><code>https://merchants.google.com/</code> （Google Merchant Center Next）</td>
+          </tr>
+          <tr>
+            <th>准入条件</th>
+            <td>1. 独立域名所有权（公网有效 HTTPS，支持标准结账流程）；<br>2. 完备政策页面（配送政策 Shipping、退换货 Refund、隐私条款 Privacy）；<br>3. 真实有效的商家联络信息（电话、客服邮箱、物理地址）。</td>
+          </tr>
+          <tr>
+            <th>需准备资料</th>
+            <td>企业注册英文主体、独立域名 DNS 解析权限（TXT 记录验证）、客服热线及邮箱、退换货与退款政策页面 URL。</td>
+          </tr>
+          <tr>
+            <th>Feed 格式</th>
+            <td><strong>Google Ads Feed 原生格式</strong>（首选 <code>XML / RSS 2.0</code>，亦支持 <code>TSV</code> 或 <code>GZ</code> 压缩文件）。</td>
+          </tr>
+          <tr>
+            <th>更新频次</th>
+            <td><strong>每日至少 1 次</strong>（全量抓取）。高频库存变动可通过 Supplemental Feed 或 Content API 实时更新。</td>
+          </tr>
+          <tr>
+            <th>推送直连方式</th>
+            <td>1. GMC 后台 -> 数据源 -> 添加主数据源 -> 选择 <strong>“计划抓取（Scheduled Fetch）”</strong>；<br>2. 填入：<code>https://feed.yourdomain.com/catalog/google_feed.xml</code>，抓取时间设定为每日凌晨；<br>3. <strong>关键开关</strong>：在“成长/管理计划”中必须启用 <strong>“在 Google 上免费发布商品（Free Listings）”</strong>。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Copilot -->
+    <h3>2. Microsoft Copilot 直连（基于 Microsoft Merchant Center）</h3>
+    <p><em>Copilot 在 Windows/Edge 及 Web 端回答购物咨询时，底层调取的是必应商业索引与微软 Merchant Center。</em></p>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr>
+            <th style="width: 130px;">申请入口</th>
+            <td><code>https://ads.microsoft.com/</code> -> 工具 -> <strong>Merchant Center</strong></td>
+          </tr>
+          <tr>
+            <th>准入条件</th>
+            <td>1. 拥有已激活的 Microsoft Advertising 广告账户；<br>2. 拥有经 Bing Webmaster Tools 或 UET 标签验证的独立域名；<br>3. 站点支持 SSL 且包含退换货说明。</td>
+          </tr>
+          <tr>
+            <th>需准备资料</th>
+            <td>微软广告账号、企业执照主体、域名所有权证据（Bing 网站管理员账号或 DNS 验证）。</td>
+          </tr>
+          <tr>
+            <th>Feed 格式</th>
+            <td><strong>100% 兼容 Google Ads Feed</strong>（直接复用 <code>google_feed.xml</code>，无需转换）。</td>
+          </tr>
+          <tr>
+            <th>更新频次</th>
+            <td><strong>每日 1 次</strong>。</td>
+          </tr>
+          <tr>
+            <th>推送直连方式</th>
+            <td><strong>方案 A（推荐）</strong>：在 MMC 中点击“从 Google Merchant Center 导入”，设置每日自动同步；<br><strong>方案 B</strong>：新增 Feed -> 传输方法选择“现有 URL 定期抓取”，填入 <code>google_feed.xml</code> 的外链。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Meta AI -->
+    <h3>3. Meta AI 直连（基于 Meta Commerce Manager）</h3>
+    <p><em>Meta AI（覆盖 WhatsApp、Instagram、Messenger 等）在用户搜索或触发商品推荐时，直接检索 Meta 商业目录。</em></p>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr>
+            <th style="width: 130px;">申请入口</th>
+            <td><code>https://business.facebook.com/commerce</code> （Meta 商业管理平台）</td>
+          </tr>
+          <tr>
+            <th>准入条件</th>
+            <td>1. Meta Business Suite 管理员权限；<br>2. 完成域名安全验证（Domain Verification）；<br>3. 符合《Meta 商业合作商家协议》及《商业交易政策》（禁售仿冒侵权品）。</td>
+          </tr>
+          <tr>
+            <th>需准备资料</th>
+            <td>Meta 商务账户、企业英文名称、已认证的独立站域名、客服联络邮箱。</td>
+          </tr>
+          <tr>
+            <th>Feed 格式</th>
+            <td><strong>Meta Ads Feed 原生格式</strong>（首选 <code>CSV</code> 或 <code>TSV</code>，亦支持 RSS XML）。</td>
+          </tr>
+          <tr>
+            <th>更新频次</th>
+            <td><strong>每小时 或 每日 1 次</strong>（支持按小时设定拉取计划）。</td>
+          </tr>
+          <tr>
+            <th>推送直连方式</th>
+            <td>1. Commerce Manager -> 目标 Catalog -> 数据源 -> 数据 Feed -> “计划 Feed 上传”；<br>2. 填入：<code>https://feed.yourdomain.com/catalog/meta_feed.csv</code>；<br>3. 目录用途确保勾选 <strong>“用于商业展示与产品推荐”</strong>。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Perplexity -->
+    <h3>4. Perplexity 直连（基于 Perplexity Merchant Program）</h3>
+    <p><em>Perplexity 已正式推出原生 Shopping 引擎（Buy with Pro 及商品答案卡），优先索引签约商户的结构化商品。</em></p>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr>
+            <th style="width: 130px;">申请入口</th>
+            <td><code>https://www.perplexity.ai/hub/merchant-program</code> （官方商家入驻表单）</td>
+          </tr>
+          <tr>
+            <th>准入条件</th>
+            <td>1. 拥有合法独立电商站点（面向美国或全球合规交付）；<br>2. 落地页具备完备且可被机器直接读取的结构化代码（<code>Schema.org/Product</code>）；<br>3. 允许 PerplexityBot 爬取（robots.txt 中不可拦截）。</td>
+          </tr>
+          <tr>
+            <th>需准备资料</th>
+            <td>商家英文名、官方主域名、业务邮箱、商品类目与总 SKU 量、<strong>GMC 格式商品 Feed URL</strong>。</td>
+          </tr>
+          <tr>
+            <th>Feed 格式</th>
+            <td><strong>直接复用 Google Ads Feed 格式</strong>（<code>google_feed.xml</code>）。</td>
+          </tr>
+          <tr>
+            <th>更新频次</th>
+            <td><strong>每日抓取</strong> + 页面访问时实时核对。</td>
+          </tr>
+          <tr>
+            <th>推送直连方式</th>
+            <td>1. 在官方入驻入口填写公司与目录信息，并在 Catalog Feed 项中填入中央 Feed 链接；<br>2. 在落地页（PDP）嵌入标准 JSON-LD 结构化数据供爬虫实时核验最新价格与库存。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Claude -->
+    <h3>5. Claude 直连（基于自建 MCP Server 直连模式）</h3>
+    <p><em>Anthropic 官方没有广告录入中心，但其核心开源标准 <strong>MCP（Model Context Protocol）</strong> 是大模型直连私有数据的首选。</em></p>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr>
+            <th style="width: 130px;">申请入口</th>
+            <td>无需向中心化平台申请审核，自主搭建即刻生效（Anthropic 开源标准）。</td>
+          </tr>
+          <tr>
+            <th>准入条件</th>
+            <td>具备一台独立云服务器或轻量容器（如 Cloudflare Workers / Docker）。</td>
+          </tr>
+          <tr>
+            <th>需准备资料</th>
+            <td>现有的 <code>google_feed.xml</code> 或 <code>meta_feed.csv</code> 文件，Python / Node 环境。</td>
+          </tr>
+          <tr>
+            <th>Feed 格式</th>
+            <td>服务端本地定时读取 Feed 文件，解析为轻量 SQLite 或内存 JSON 索引。</td>
+          </tr>
+          <tr>
+            <th>更新频次</th>
+            <td>Linux Cron 定时任务，每小时或每日从中央 S3/R2 下载最新 Feed 覆盖本地索引。</td>
+          </tr>
+          <tr>
+            <th>推送直连方式</th>
+            <td>1. 部署极简 Python MCP Server（暴露 <code>search_products</code> 和 <code>get_product_detail</code> 两个只读工具）；<br>2. 在 Claude 客户端或内部智能体配置接入该 MCP 端点，即可让 Claude 对话毫秒级检索最新商品数据。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 统一字段映射 -->
+  <section class="section-card" id="schema-mapping">
+    <h2>二、 全平台 Feed 核心字段标准对照表</h2>
+    <div class="callout">只要自建导出脚本支持以下标准字段，即可无损分发给上述所有平台：</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>通用字段含义</th>
+            <th>Google Gemini / Copilot / Perplexity (GMC XML)</th>
+            <th>Meta AI (Meta CSV)</th>
+            <th>规则与值约束</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>商品唯一 ID</strong></td>
+            <td><code>&lt;g:id&gt;</code></td>
+            <td><code>id</code></td>
+            <td>变体级唯一且不可变（如 <code>SKU-1001-BLK</code>）</td>
+          </tr>
+          <tr>
+            <td><strong>商品标题</strong></td>
+            <td><code>&lt;g:title&gt;</code></td>
+            <td><code>title</code></td>
+            <td>纯文本，含核心变体属性，≤ 150 字符</td>
+          </tr>
+          <tr>
+            <td><strong>商品描述</strong></td>
+            <td><code>&lt;g:description&gt;</code></td>
+            <td><code>description</code></td>
+            <td>真实客观，严禁包含 HTML 标签，≤ 5,000 字符</td>
+          </tr>
+          <tr>
+            <td><strong>商品落地页</strong></td>
+            <td><code>&lt;g:link&gt;</code></td>
+            <td><code>link</code></td>
+            <td>公开可达的绝对 HTTPS URL，默认选中对应变体</td>
+          </tr>
+          <tr>
+            <td><strong>商品主图</strong></td>
+            <td><code>&lt;g:image_link&gt;</code></td>
+            <td><code>image_link</code></td>
+            <td>对应变体的真实图片直链（JPEG/PNG）</td>
+          </tr>
+          <tr>
+            <td><strong>价格</strong></td>
+            <td><code>&lt;g:price&gt;</code></td>
+            <td><code>price</code></td>
+            <td>数字 + 币种，如 <code>79.99 USD</code></td>
+          </tr>
+          <tr>
+            <td><strong>促销价</strong></td>
+            <td><code>&lt;g:sale_price&gt;</code></td>
+            <td><code>sale_price</code></td>
+            <td>真实有效促销价，如 <code>59.99 USD</code>（无促销则留空）</td>
+          </tr>
+          <tr>
+            <td><strong>库存状态</strong></td>
+            <td><code>&lt;g:availability&gt;</code></td>
+            <td><code>availability</code></td>
+            <td>严格枚举：<code>in_stock</code>, <code>out_of_stock</code>, <code>preorder</code></td>
+          </tr>
+          <tr>
+            <td><strong>品牌</strong></td>
+            <td><code>&lt;g:brand&gt;</code></td>
+            <td><code>brand</code></td>
+            <td>页面展示的真实商标/品牌名</td>
+          </tr>
+          <tr>
+            <td><strong>成色</strong></td>
+            <td><code>&lt;g:condition&gt;</code></td>
+            <td><code>condition</code></td>
+            <td>固定枚举：<code>new</code>, <code>refurbished</code>, <code>used</code></td>
+          </tr>
+          <tr>
+            <td><strong>标准条码</strong></td>
+            <td><code>&lt;g:gtin&gt;</code></td>
+            <td><code>gtin</code></td>
+            <td>8/12/13/14 位 UPC/EAN 标准码（有则必填）</td>
+          </tr>
+          <tr>
+            <td><strong>母商品分组</strong></td>
+            <td><code>&lt;g:item_group_id&gt;</code></td>
+            <td><code>item_group_id</code></td>
+            <td>多变体商品归属的同一父级 ID</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 落地执行四步走 -->
+  <section class="section-card" id="steps">
+    <h2>三、 从 0 到 1 落地执行四步走</h2>
+    <ol>
+      <li><strong>第 1 天：生成并托管中央 Feed 文件</strong><br>编写服务端定时脚本从数据库每日导出 <code>google_feed.xml</code> 和 <code>meta_feed.csv</code>，推送到 S3/R2 生成公共固定链接。</li>
+      <li><strong>第 1-2 天：配置三大主流 AI 商业后台</strong><br>
+        - GMC：配置 Scheduled Fetch（每日拉取），勾选“免费发布商品”（覆盖 Gemini）；<br>
+        - MMC：关联 GMC 一键同步或配置定时抓取（覆盖 Copilot）；<br>
+        - Meta Commerce：配置定时 Feed，设置更新频率（覆盖 Meta AI）。
+      </li>
+      <li><strong>第 2-3 天：提交 Perplexity 官方商家入驻</strong><br>提交官网 Merchant Form，填写中央 <code>google_feed.xml</code> 链接，并确保落地页 JSON-LD Product Schema 正确输出。</li>
+      <li><strong>第 3 天：搭建 Claude MCP 服务（选配）</strong><br>部署基于本地 Feed 缓存的轻量 MCP 检索服务，供 Claude 客户端或内部自动化接入。</li>
+    </ol>
+  </section>
+
+</div>
+
+<footer>
+  <p>多平台 AI 购物与对话直连落地实施方案 · 基于标准 Feed 构建</p>
+</footer>
+
+</body>
+</html>

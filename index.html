@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>多平台 AI 购物与对话直连实施方案</title>
+  <title>多平台 AI 购物直连实施全景指南</title>
   <style>
     :root {
       --primary: #2563eb;
@@ -15,6 +15,12 @@
       --border: #e2e8f0;
       --code-bg: #f1f5f9;
       --accent-soft: #eff6ff;
+      --warn-bg: #fffbeb;
+      --warn-border: #fde68a;
+      --warn-text: #92400e;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --danger-text: #991b1b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -24,7 +30,7 @@
       background-color: var(--bg-page);
     }
     .container {
-      max-width: 1040px;
+      max-width: 1060px;
       margin: 0 auto;
       padding: 40px 24px 80px;
     }
@@ -163,6 +169,38 @@
       margin: 18px 0;
       font-size: 14px;
     }
+    .callout-warn {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-left: 4px solid #f59e0b;
+      color: var(--warn-text);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+      font-size: 14px;
+    }
+    .callout-danger {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-left: 4px solid #ef4444;
+      color: var(--danger-text);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+      font-size: 14px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .tag-easy { background: #dcfce7; color: #15803d; }
+    .tag-mid { background: #fef3c7; color: #b45309; }
+    .tag-hard { background: #fee2e2; color: #b91c1c; }
+    .tag-na { background: #f1f5f9; color: #64748b; }
     footer {
       text-align: center;
       font-size: 12.5px;
@@ -175,230 +213,213 @@
 
 <header>
   <div class="container">
-    <div class="badge">跨平台 AI 电商基础设施方案</div>
-    <h1>多平台 AI 购物与对话直连落地实施方案</h1>
-    <p class="lead">覆盖 Google Gemini、Microsoft Copilot、Meta AI、Perplexity、Claude · 脱离 Shopify 等建站 SaaS 限制，基于自有 Google/Meta Ads Feed 直接对接。</p>
+    <div class="badge">跨平台 AI 电商基础设施方案 · 实事求是审定版</div>
+    <h1>多平台 AI 购物直连实施全景指南</h1>
+    <p class="lead">覆盖 Google Gemini、Microsoft Copilot、Meta AI、Perplexity、ChatGPT 与 Claude · 脱离 Shopify 等建站 SaaS 限制，基于自有 Google/Meta Ads Feed 直接对接。</p>
     <div class="meta-links">
       <a href="https://github.com/igocc/ai-shopping-feed-guide" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
-      <a href="#architecture">系统架构 ↗</a>
-      <a href="#platforms">五大平台直连规范 ↗</a>
-      <a href="#schema-mapping">统一字段映射 ↗</a>
-      <a href="#steps">落地执行四步走 ↗</a>
+      <a href="#matrix">平台属性与难度矩阵 ↗</a>
+      <a href="#claude-truth">Claude 机制透视 ↗</a>
+      <a href="#materials">必备资料清单 ↗</a>
+      <a href="#platforms">分平台落地指南 ↗</a>
+      <a href="#schema-mapping">统一字段对照 ↗</a>
+      <a href="#roadmap">优先级路线 ↗</a>
     </div>
   </div>
 </header>
 
 <div class="container">
 
-  <!-- 架构部分 -->
-  <section class="section-card" id="architecture">
-    <h2>零、 核心底层架构：自建中央 Feed 托管节点</h2>
-    <p>通过独立对象存储（如 AWS S3、Cloudflare R2 或自建 Nginx），为两大标准 Feed 提供公开且固定不变的 HTTPS 访问链接：</p>
-    <pre><code>[企业商品主数据库 / 自建 ERP]
-          │
-          ▼ 每日定时导出（UTF-8）
-   ┌───────────────────────────┐
-   │ 1. google_feed.xml (GMC格式)│
-   │ 2. meta_feed.csv  (Meta格式)│
-   └─────────────┬─────────────┘
-                 ▼ 上传到独立对象存储（AWS S3 / Cloudflare R2 / Nginx）
-       https://feed.yourdomain.com/catalog/google_feed.xml
-       https://feed.yourdomain.com/catalog/meta_feed.csv
-                 │
-                 ├──► 1. Google Merchant Center ──► Google Gemini
-                 ├──► 2. Microsoft Merchant Center ─► Microsoft Copilot
-                 ├──► 3. Meta Commerce Manager ────► Meta AI
-                 ├──► 4. Perplexity Merchant ─────► Perplexity Shopping
-                 └──► 5. 本地轻量 MCP Server ──────► Claude (Anthropic)</code></pre>
-  </section>
-
-  <!-- 五大平台直连规范 -->
-  <section class="section-card" id="platforms">
-    <h2>一、 五大 AI 平台直连全景档案</h2>
-
-    <!-- Gemini -->
-    <h3>1. Google Gemini 直连（基于 Google Merchant Center）</h3>
-    <p><em>Gemini 的商品搜索、比价、推荐及 AI Overviews 的底层全部直接读取 Google Shopping Graph。</em></p>
-    <div class="table-wrap">
-      <table>
-        <tbody>
-          <tr>
-            <th style="width: 130px;">申请入口</th>
-            <td><code>https://merchants.google.com/</code> （Google Merchant Center Next）</td>
-          </tr>
-          <tr>
-            <th>准入条件</th>
-            <td>1. 独立域名所有权（公网有效 HTTPS，支持标准结账流程）；<br>2. 完备政策页面（配送政策 Shipping、退换货 Refund、隐私条款 Privacy）；<br>3. 真实有效的商家联络信息（电话、客服邮箱、物理地址）。</td>
-          </tr>
-          <tr>
-            <th>需准备资料</th>
-            <td>企业注册英文主体、独立域名 DNS 解析权限（TXT 记录验证）、客服热线及邮箱、退换货与退款政策页面 URL。</td>
-          </tr>
-          <tr>
-            <th>Feed 格式</th>
-            <td><strong>Google Ads Feed 原生格式</strong>（首选 <code>XML / RSS 2.0</code>，亦支持 <code>TSV</code> 或 <code>GZ</code> 压缩文件）。</td>
-          </tr>
-          <tr>
-            <th>更新频次</th>
-            <td><strong>每日至少 1 次</strong>（全量抓取）。高频库存变动可通过 Supplemental Feed 或 Content API 实时更新。</td>
-          </tr>
-          <tr>
-            <th>推送直连方式</th>
-            <td>1. GMC 后台 -> 数据源 -> 添加主数据源 -> 选择 <strong>“计划抓取（Scheduled Fetch）”</strong>；<br>2. 填入：<code>https://feed.yourdomain.com/catalog/google_feed.xml</code>，抓取时间设定为每日凌晨；<br>3. <strong>关键开关</strong>：在“成长/管理计划”中必须启用 <strong>“在 Google 上免费发布商品（Free Listings）”</strong>。</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Copilot -->
-    <h3>2. Microsoft Copilot 直连（基于 Microsoft Merchant Center）</h3>
-    <p><em>Copilot 在 Windows/Edge 及 Web 端回答购物咨询时，底层调取的是必应商业索引与微软 Merchant Center。</em></p>
-    <div class="table-wrap">
-      <table>
-        <tbody>
-          <tr>
-            <th style="width: 130px;">申请入口</th>
-            <td><code>https://ads.microsoft.com/</code> -> 工具 -> <strong>Merchant Center</strong></td>
-          </tr>
-          <tr>
-            <th>准入条件</th>
-            <td>1. 拥有已激活的 Microsoft Advertising 广告账户；<br>2. 拥有经 Bing Webmaster Tools 或 UET 标签验证的独立域名；<br>3. 站点支持 SSL 且包含退换货说明。</td>
-          </tr>
-          <tr>
-            <th>需准备资料</th>
-            <td>微软广告账号、企业执照主体、域名所有权证据（Bing 网站管理员账号或 DNS 验证）。</td>
-          </tr>
-          <tr>
-            <th>Feed 格式</th>
-            <td><strong>100% 兼容 Google Ads Feed</strong>（直接复用 <code>google_feed.xml</code>，无需转换）。</td>
-          </tr>
-          <tr>
-            <th>更新频次</th>
-            <td><strong>每日 1 次</strong>。</td>
-          </tr>
-          <tr>
-            <th>推送直连方式</th>
-            <td><strong>方案 A（推荐）</strong>：在 MMC 中点击“从 Google Merchant Center 导入”，设置每日自动同步；<br><strong>方案 B</strong>：新增 Feed -> 传输方法选择“现有 URL 定期抓取”，填入 <code>google_feed.xml</code> 的外链。</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Meta AI -->
-    <h3>3. Meta AI 直连（基于 Meta Commerce Manager）</h3>
-    <p><em>Meta AI（覆盖 WhatsApp、Instagram、Messenger 等）在用户搜索或触发商品推荐时，直接检索 Meta 商业目录。</em></p>
-    <div class="table-wrap">
-      <table>
-        <tbody>
-          <tr>
-            <th style="width: 130px;">申请入口</th>
-            <td><code>https://business.facebook.com/commerce</code> （Meta 商业管理平台）</td>
-          </tr>
-          <tr>
-            <th>准入条件</th>
-            <td>1. Meta Business Suite 管理员权限；<br>2. 完成域名安全验证（Domain Verification）；<br>3. 符合《Meta 商业合作商家协议》及《商业交易政策》（禁售仿冒侵权品）。</td>
-          </tr>
-          <tr>
-            <th>需准备资料</th>
-            <td>Meta 商务账户、企业英文名称、已认证的独立站域名、客服联络邮箱。</td>
-          </tr>
-          <tr>
-            <th>Feed 格式</th>
-            <td><strong>Meta Ads Feed 原生格式</strong>（首选 <code>CSV</code> 或 <code>TSV</code>，亦支持 RSS XML）。</td>
-          </tr>
-          <tr>
-            <th>更新频次</th>
-            <td><strong>每小时 或 每日 1 次</strong>（支持按小时设定拉取计划）。</td>
-          </tr>
-          <tr>
-            <th>推送直连方式</th>
-            <td>1. Commerce Manager -> 目标 Catalog -> 数据源 -> 数据 Feed -> “计划 Feed 上传”；<br>2. 填入：<code>https://feed.yourdomain.com/catalog/meta_feed.csv</code>；<br>3. 目录用途确保勾选 <strong>“用于商业展示与产品推荐”</strong>。</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Perplexity -->
-    <h3>4. Perplexity 直连（基于 Perplexity Merchant Program）</h3>
-    <p><em>Perplexity 已正式推出原生 Shopping 引擎（Buy with Pro 及商品答案卡），优先索引签约商户的结构化商品。</em></p>
-    <div class="table-wrap">
-      <table>
-        <tbody>
-          <tr>
-            <th style="width: 130px;">申请入口</th>
-            <td><code>https://www.perplexity.ai/hub/merchant-program</code> （官方商家入驻表单）</td>
-          </tr>
-          <tr>
-            <th>准入条件</th>
-            <td>1. 拥有合法独立电商站点（面向美国或全球合规交付）；<br>2. 落地页具备完备且可被机器直接读取的结构化代码（<code>Schema.org/Product</code>）；<br>3. 允许 PerplexityBot 爬取（robots.txt 中不可拦截）。</td>
-          </tr>
-          <tr>
-            <th>需准备资料</th>
-            <td>商家英文名、官方主域名、业务邮箱、商品类目与总 SKU 量、<strong>GMC 格式商品 Feed URL</strong>。</td>
-          </tr>
-          <tr>
-            <th>Feed 格式</th>
-            <td><strong>直接复用 Google Ads Feed 格式</strong>（<code>google_feed.xml</code>）。</td>
-          </tr>
-          <tr>
-            <th>更新频次</th>
-            <td><strong>每日抓取</strong> + 页面访问时实时核对。</td>
-          </tr>
-          <tr>
-            <th>推送直连方式</th>
-            <td>1. 在官方入驻入口填写公司与目录信息，并在 Catalog Feed 项中填入中央 Feed 链接；<br>2. 在落地页（PDP）嵌入标准 JSON-LD 结构化数据供爬虫实时核验最新价格与库存。</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Claude -->
-    <h3>5. Claude 直连（基于自建 MCP Server 直连模式）</h3>
-    <p><em>Anthropic 官方没有广告录入中心，但其核心开源标准 <strong>MCP（Model Context Protocol）</strong> 是大模型直连私有数据的首选。</em></p>
-    <div class="table-wrap">
-      <table>
-        <tbody>
-          <tr>
-            <th style="width: 130px;">申请入口</th>
-            <td>无需向中心化平台申请审核，自主搭建即刻生效（Anthropic 开源标准）。</td>
-          </tr>
-          <tr>
-            <th>准入条件</th>
-            <td>具备一台独立云服务器或轻量容器（如 Cloudflare Workers / Docker）。</td>
-          </tr>
-          <tr>
-            <th>需准备资料</th>
-            <td>现有的 <code>google_feed.xml</code> 或 <code>meta_feed.csv</code> 文件，Python / Node 环境。</td>
-          </tr>
-          <tr>
-            <th>Feed 格式</th>
-            <td>服务端本地定时读取 Feed 文件，解析为轻量 SQLite 或内存 JSON 索引。</td>
-          </tr>
-          <tr>
-            <th>更新频次</th>
-            <td>Linux Cron 定时任务，每小时或每日从中央 S3/R2 下载最新 Feed 覆盖本地索引。</td>
-          </tr>
-          <tr>
-            <th>推送直连方式</th>
-            <td>1. 部署极简 Python MCP Server（暴露 <code>search_products</code> 和 <code>get_product_detail</code> 两个只读工具）；<br>2. 在 Claude 客户端或内部智能体配置接入该 MCP 端点，即可让 Claude 对话毫秒级检索最新商品数据。</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- 统一字段映射 -->
-  <section class="section-card" id="schema-mapping">
-    <h2>二、 全平台 Feed 核心字段标准对照表</h2>
-    <div class="callout">只要自建导出脚本支持以下标准字段，即可无损分发给上述所有平台：</div>
+  <!-- 矩阵审定部分 -->
+  <section class="section-card" id="matrix">
+    <h2>零、 核心结论：各大 AI 平台入口属性与直连难度审定</h2>
+    <p>各大平台获取商品数据的底层商业与技术逻辑完全不同。市面上的“AI 直连”分为三类截然不同的机制：</p>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>通用字段含义</th>
-            <th>Google Gemini / Copilot / Perplexity (GMC XML)</th>
-            <th>Meta AI (Meta CSV)</th>
-            <th>规则与值约束</th>
+            <th>目标平台</th>
+            <th>入口属性判定</th>
+            <th>是否支持提交 Feed</th>
+            <th>准入审核机制</th>
+            <th>难度系数</th>
+            <th>真实审批现状与审定结论</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Google Gemini</strong></td>
+            <td>现成广告/电商后台<br>(GMC)</td>
+            <td><strong>支持</strong></td>
+            <td>系统自动审核</td>
+            <td><span class="tag tag-easy">★☆☆☆☆ (全开放)</span></td>
+            <td><strong>无需单独申请</strong>。在 GMC 开启“免费发布商品（Free Listings）”，商品自动进入 Google Shopping Graph，Gemini 对话直接调取。</td>
+          </tr>
+          <tr>
+            <td><strong>Microsoft Copilot</strong></td>
+            <td>现成广告/电商后台<br>(MMC)</td>
+            <td><strong>支持</strong></td>
+            <td>系统自动审核</td>
+            <td><span class="tag tag-easy">★☆☆☆☆ (全开放)</span></td>
+            <td><strong>无需单独申请</strong>。通过微软广告后台创建 MMC，直接填入 Google Feed 或一键同步 GMC，Copilot 自动在必应商业索引中读取。</td>
+          </tr>
+          <tr>
+            <td><strong>Meta AI</strong></td>
+            <td>现成商业管理后台<br>(Commerce Manager)</td>
+            <td><strong>支持</strong></td>
+            <td>机器审核为主</td>
+            <td><span class="tag tag-easy">★★☆☆☆ (低门槛)</span></td>
+            <td><strong>无需找 Meta AI 申请</strong>。通过 Meta BM 建立 Catalog 目录，配置 Meta Feed 定时拉取，只要开启“商业推荐”权限即可覆盖 WhatsApp/Instagram/Messenger。</td>
+          </tr>
+          <tr>
+            <td><strong>Perplexity</strong></td>
+            <td>独立专属 AI 入口<br>(Merchant Program)</td>
+            <td><strong>支持</strong></td>
+            <td>专属表单 + 人工筛选</td>
+            <td><span class="tag tag-mid">★★★☆☆ (需审核)</span></td>
+            <td><strong>必须走专属入口申请</strong>。面向独立站商户开放填表，需提供 GMC 格式 Feed URL，官方人工审核站点质量、美国本土履约能力与落地页 Schema 代码。</td>
+          </tr>
+          <tr>
+            <td><strong>ChatGPT</strong></td>
+            <td>独立专属 AI 入口<br>(chatgpt.com/merchants)</td>
+            <td><strong>支持</strong></td>
+            <td>表面候补 (Waitlist)<br>实质为【封闭定向邀约制】</td>
+            <td><span class="tag tag-hard">★★★★★ (强门槛)</span></td>
+            <td><strong>普通申请不受制于提交即获批</strong>。官方明确定位仅面向 *“Approved Partners”*。普通商户填表后基本长期处于 Waitlist 状态；当前官方重点与头部平台/战略品牌直连。自建技术完成不等于获批。</td>
+          </tr>
+          <tr>
+            <td><strong>Claude</strong></td>
+            <td>无任何商户或 Feed 入口<br>(纯靠搜索引擎爬取)</td>
+            <td><strong>不支持</strong><br>(官方无 Feed 端点)</td>
+            <td>不支持提交任何 Feed<br>(纯靠自然抓取)</td>
+            <td><span class="tag tag-na">N/A (不适用)</span></td>
+            <td><strong>彻底澄清</strong>：Anthropic 官方<strong>没有广告中心、没有商户平台、不接收任何 Feed</strong>。公网 <code>claude.ai</code> 纯靠搜索引擎爬取独立站网页及 <code>Schema.org</code> 微数据；开源的 MCP 协议是<strong>私有端对端插头</strong>，全世界普通消费者根本无法通过 MCP 搜到你的商品。<strong>做 Feed 获客请直接把 Claude 从 Feed 清单排除</strong>。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Claude 机制剖析 -->
+  <section class="section-card" id="claude-truth">
+    <h2>一、 为什么 Claude 无法通过 Feed 提交？（原理剖析）</h2>
+    <div class="callout-danger">
+      <strong>核心本质：</strong>必须严格区分<strong>“公网消费者获客”</strong>与<strong>“企业私有内网工具”</strong>两个不同概念。
+    </div>
+
+    <h3>1. 公网网民在 claude.ai 提问时，数据怎么来的？</h3>
+    <p>普通消费者在 Claude 网页端或 App 询问购物建议（例如“推荐一款车库取暖器”），Claude 的底层数据链路为：</p>
+    <pre><code>消费者在 claude.ai 提问
+        │
+        ▼ 触发联网搜索（调用第三方商业搜索引擎接口，如 Brave Search）
+   检索公网网页
+        │
+        ▼ 抓取独立站公开详情页 HTML，解析 Schema.org/Product 代码（而非 Feed！）
+   Claude 总结生成推荐，并附带独立站链接</code></pre>
+    <p><strong>结论：</strong>对公网 Claude 而言，<strong>没有任何地方可以提交 Feed</strong>。商家唯一要做的是做好独立站 SEO，确保页面嵌入标准的 <code>Schema.org/Product</code> JSON-LD，并在 <code>robots.txt</code> 放行 <code>ClaudeBot</code>。</p>
+
+    <h3>2. 那所谓的“自建 MCP”到底是怎么回事？</h3>
+    <p>MCP（Model Context Protocol）是 Anthropic 开源的模型上下文协议，它是<strong>私有外挂插头</strong>，而不是公共广告系统：</p>
+    <ul>
+      <li><strong>谁能访问？</strong> 只有<strong>安装了该 MCP 配置文件的那台具体电脑/服务器</strong>。</li>
+      <li><strong>全世界普通网民能否访问？</strong> <strong>绝对不能</strong>。全世界网民在 <code>claude.ai</code> 聊天，根本不可能连到你自建的私有 MCP 服务器。</li>
+      <li><strong>自建 MCP 的唯一用途：</strong>企业自建内部智能客服、销售助手查库存，<strong>绝不是公网获客渠道</strong>。</li>
+    </ul>
+  </section>
+
+  <!-- 必备资料清单 -->
+  <section class="section-card" id="materials">
+    <h2>二、 准备清单与详细资料清单（0 到 1 必备材料）</h2>
+
+    <h3>1. 独立站合规与政策页面清单（四大必备合规页面）</h3>
+    <p>所有商业与 AI 平台（尤其是 Google、Meta、Perplexity）在收录商品前均会通过自动化爬虫或人工复核独立站的合规性，缺少以下任何一项都将导致封禁或驳回：</p>
+    <ul>
+      <li><strong>Contact Us（联系我们页面）</strong>：必须展示<strong>真实可拨通的电话号码</strong>、<strong>专属客服邮箱</strong>、<strong>企业法定注册实体地址</strong>（严禁仅留一个简单的无信息留言框）。</li>
+      <li><strong>Shipping Policy（配送政策页面）</strong>：明确列出配送覆盖国家/地区、合作承运商（如 UPS、FedEx）、订单处理时效（Handling Time，如 1-2 个工作日）、运输时效（Transit Time，如 3-5 个工作日）、明确的运费计算与包邮门槛。</li>
+      <li><strong>Refund & Return Policy（退换货政策页面）</strong>：明确退货支持时限（如 30 天无理由退货）、退货运费承担主体（买家还是商家）、退款原路返还时效。</li>
+      <li><strong>Terms of Service & Privacy Policy</strong>：公开合规的在线服务条款与隐私政策。</li>
+      <li><strong>公开结账通道</strong>：全站必须支持公开 HTTPS 正常下单并完成信用卡/PayPal 支付，严禁出现仅询盘或非闭环结算。</li>
+    </ul>
+
+    <h3>2. 企业资质与对接人资料清单</h3>
+    <ul>
+      <li><strong>企业法定注册信息</strong>：营业执照英文名称、注册地址、企业税号（EIN / VAT 等）。</li>
+      <li><strong>域名 DNS 管理权限</strong>：具备添加 TXT 记录权限，用于完成 Google、Bing、Meta 的域名所有权秒级认证。</li>
+      <li><strong>官方业务与技术对接人（专供 Perplexity / ChatGPT 申请表填报）</strong>：
+        姓名（First/Last Name）、职务、企业域名工作邮箱（如 <code>service@yourdomain.com</code>，严禁使用 Gmail 等公共邮箱）、领英职业主页链接（LinkedIn URL）。
+      </li>
+    </ul>
+
+    <h3>3. 中央托管 Feed 静态资产清单</h3>
+    <p>在独立对象存储（如 AWS S3、Cloudflare R2 或独立 Nginx 服务器）上配置两个<strong>固定不变、公开可直接下载</strong>的静态链接：</p>
+    <ul>
+      <li><code>https://feed.yourdomain.com/catalog/google_feed.xml</code>（遵循 Google Merchant Center XML/RSS 规范）</li>
+      <li><code>https://feed.yourdomain.com/catalog/meta_feed.csv</code>（遵循 Meta Commerce CSV/TSV 规范）</li>
+    </ul>
+  </section>
+
+  <!-- 各平台落地指南 -->
+  <section class="section-card" id="platforms">
+    <h2>三、 各平台直连实操指南（逐一落地）</h2>
+
+    <h3>1. Google Gemini 直连（基于 Google Merchant Center）</h3>
+    <p><strong>入口属性：现成后台，无需单独申请。</strong> 后台地址：<code>https://merchants.google.com/</code></p>
+    <ol>
+      <li>登录 GMC 后台，点击“商品 (Products)” -> “数据源 (Data sources)”，新增主数据源。</li>
+      <li>目标国家选择销售目的地（如美国），语言选择英语。</li>
+      <li>传输方式选择“计划抓取 (Scheduled Fetch)”，填入中央 Feed 链接：<code>https://feed.yourdomain.com/catalog/google_feed.xml</code>。</li>
+      <li>抓取频率设定为每日 1 次（建议设在当地时间凌晨）。</li>
+      <li><strong>【关键核心开关】</strong>：进入“设置/增长” -> “管理计划 (Manage programs)”，确保必须激活 <strong>“在 Google 上免费发布商品 (Free Product Listings)”</strong>。</li>
+    </ol>
+
+    <h3>2. Microsoft Copilot 直连（基于 Microsoft Merchant Center）</h3>
+    <p><strong>入口属性：现成后台，无需单独申请。</strong> 后台地址：<code>https://ads.microsoft.com/</code> -> 工具 -> Merchant Center</p>
+    <ul>
+      <li><strong>方案 A（推荐）：</strong>在 MMC 中直接选择“从 Google Merchant Center 导入”，授权读取 GMC，设置每日自动镜像同步，零开发量。</li>
+      <li><strong>方案 B：</strong>在 MMC 中创建店铺目录，传输方法选择“现有 URL 定期抓取”，填入 <code>google_feed.xml</code> 的外链。</li>
+    </ul>
+
+    <h3>3. Meta AI 直连（基于 Meta Commerce Manager）</h3>
+    <p><strong>入口属性：现成后台，无需单独申请。</strong> 后台地址：<code>https://business.facebook.com/commerce</code></p>
+    <ol>
+      <li>在 Meta Business Suite 中完成独立域名安全验证（Domain Verification）。</li>
+      <li>进入 Commerce Manager -> 选择商品目录（Catalog） -> 点击“数据源 (Data Sources)”。</li>
+      <li>选择“数据 Feed (Data Feed)” -> “通过计划 Feed 上传 (Scheduled Feed)”。</li>
+      <li>填入中央静态链接：<code>https://feed.yourdomain.com/catalog/meta_feed.csv</code>，更新频率建议设为每日 1 次 或 每小时 1 次。</li>
+      <li><strong>【核心设置】</strong>：确保该 Catalog 业务用途包含“商业展示与产品推荐”。</li>
+    </ol>
+
+    <h3>4. Perplexity 直连（基于 Perplexity Merchant Program）</h3>
+    <p><strong>入口属性：独立专属入口，需人工审核。</strong> 申请入口：<code>https://www.perplexity.ai/hub/merchant-program</code></p>
+    <ul>
+      <li>表单填报：品牌名称、独立站主域名、对接人姓名/职务/企业邮箱/LinkedIn、主营类目与 SKU 规模。</li>
+      <li>Catalog Feed 项直接填入中央 <code>google_feed.xml</code> 链接。</li>
+      <li><strong>硬性技术配合：</strong>商品详情页 HTML 必须包含标准 <code>Schema.org/Product</code> JSON-LD 代码，且 <code>robots.txt</code> 严禁拦截 <code>PerplexityBot</code>。</li>
+    </ul>
+
+    <h3>5. ChatGPT 直连（基于 ChatGPT Merchants 入口）</h3>
+    <p><strong>入口属性：独立专属入口，表面候补，实质为封闭定向邀约制。</strong> 申请入口：<code>https://chatgpt.com/merchants/</code></p>
+    <div class="callout-warn">
+      <strong>真实预期审定：</strong>官方文档明确直连仅面向 <em>“Approved Partners”</em>。普通商户提交申请后自动进入 Waitlist，官方无承诺审核时效（SLA）。建议作为战略留档与技术储备，不作为短期主渠道。
+    </div>
+    <ul>
+      <li>填报材料：联系人姓名/职务/邮箱/LinkedIn、公司英文名、总部国家、官网、类目、SKU 量，Feed 勾选就绪。</li>
+      <li>获批后技术标准：SFTP 推送 Parquet/JSONL.gz 至根目录，固定文件名原位覆盖，14 天容错留存，主动下架标记 <code>"is_eligible_search": false</code>。</li>
+    </ul>
+  </section>
+
+  <!-- 统一字段对照表 -->
+  <section class="section-card" id="schema-mapping">
+    <h2>四、 全平台通用 Feed 核心字段标准对照表</h2>
+    <div class="callout">只需自建一套导出服务，产出以下标准字段，即可无损满足所有支持 Feed 的平台：</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>通用业务字段</th>
+            <th>Google (GMC XML 标签)</th>
+            <th>Meta (CSV 列名)</th>
+            <th>规范约束与说明</th>
           </tr>
         </thead>
         <tbody>
@@ -406,19 +427,19 @@
             <td><strong>商品唯一 ID</strong></td>
             <td><code>&lt;g:id&gt;</code></td>
             <td><code>id</code></td>
-            <td>变体级唯一且不可变（如 <code>SKU-1001-BLK</code>）</td>
+            <td>变体级不可变 ID（如 <code>SKU-1001-BLK-10</code>），修改价格或标题不得更换 ID</td>
           </tr>
           <tr>
             <td><strong>商品标题</strong></td>
             <td><code>&lt;g:title&gt;</code></td>
             <td><code>title</code></td>
-            <td>纯文本，含核心变体属性，≤ 150 字符</td>
+            <td>纯文本，包含核心变体属性，≤ 150 字符，不堆砌促销词</td>
           </tr>
           <tr>
             <td><strong>商品描述</strong></td>
             <td><code>&lt;g:description&gt;</code></td>
             <td><code>description</code></td>
-            <td>真实客观，严禁包含 HTML 标签，≤ 5,000 字符</td>
+            <td>客观真实纯文本，≤ 5,000 字符，严禁包含 HTML 标签</td>
           </tr>
           <tr>
             <td><strong>商品落地页</strong></td>
@@ -427,34 +448,34 @@
             <td>公开可达的绝对 HTTPS URL，默认选中对应变体</td>
           </tr>
           <tr>
-            <td><strong>商品主图</strong></td>
+            <td><strong>主图链接</strong></td>
             <td><code>&lt;g:image_link&gt;</code></td>
             <td><code>image_link</code></td>
-            <td>对应变体的真实图片直链（JPEG/PNG）</td>
+            <td>对应变体的高清直链（JPEG/PNG），公网直接可访问</td>
           </tr>
           <tr>
-            <td><strong>价格</strong></td>
+            <td><strong>售价</strong></td>
             <td><code>&lt;g:price&gt;</code></td>
             <td><code>price</code></td>
-            <td>数字 + 币种，如 <code>79.99 USD</code></td>
+            <td>数字 + 币种，如 <code>79.99 USD</code>，必须与落地页应付金额一致</td>
           </tr>
           <tr>
             <td><strong>促销价</strong></td>
             <td><code>&lt;g:sale_price&gt;</code></td>
             <td><code>sale_price</code></td>
-            <td>真实有效促销价，如 <code>59.99 USD</code>（无促销则留空）</td>
+            <td>真实生效促销价，如 <code>59.99 USD</code>（无促销则留空）</td>
           </tr>
           <tr>
             <td><strong>库存状态</strong></td>
             <td><code>&lt;g:availability&gt;</code></td>
             <td><code>availability</code></td>
-            <td>严格枚举：<code>in_stock</code>, <code>out_of_stock</code>, <code>preorder</code></td>
+            <td>严格固定枚举：<code>in_stock</code>, <code>out_of_stock</code>, <code>preorder</code></td>
           </tr>
           <tr>
             <td><strong>品牌</strong></td>
             <td><code>&lt;g:brand&gt;</code></td>
             <td><code>brand</code></td>
-            <td>页面展示的真实商标/品牌名</td>
+            <td>页面展示的真实品牌/商标名</td>
           </tr>
           <tr>
             <td><strong>成色</strong></td>
@@ -466,7 +487,7 @@
             <td><strong>标准条码</strong></td>
             <td><code>&lt;g:gtin&gt;</code></td>
             <td><code>gtin</code></td>
-            <td>8/12/13/14 位 UPC/EAN 标准码（有则必填）</td>
+            <td>8/12/13/14 位 UPC/EAN 标准码（有则必填，保留前导零）</td>
           </tr>
           <tr>
             <td><strong>母商品分组</strong></td>
@@ -479,25 +500,31 @@
     </div>
   </section>
 
-  <!-- 落地执行四步走 -->
-  <section class="section-card" id="steps">
-    <h2>三、 从 0 到 1 落地执行四步走</h2>
+  <!-- 优先级路线 -->
+  <section class="section-card" id="roadmap">
+    <h2>五、 企业推进的优先级落地路线</h2>
     <ol>
-      <li><strong>第 1 天：生成并托管中央 Feed 文件</strong><br>编写服务端定时脚本从数据库每日导出 <code>google_feed.xml</code> 和 <code>meta_feed.csv</code>，推送到 S3/R2 生成公共固定链接。</li>
-      <li><strong>第 1-2 天：配置三大主流 AI 商业后台</strong><br>
-        - GMC：配置 Scheduled Fetch（每日拉取），勾选“免费发布商品”（覆盖 Gemini）；<br>
-        - MMC：关联 GMC 一键同步或配置定时抓取（覆盖 Copilot）；<br>
-        - Meta Commerce：配置定时 Feed，设置更新频率（覆盖 Meta AI）。
+      <li><strong>【第一优先级：确定性 100%，当天生效】</strong><br>
+        - 生成并托管中央静态 Feed（<code>google_feed.xml</code> 和 <code>meta_feed.csv</code>）；<br>
+        - 登录 Google Merchant Center，配置 Scheduled Fetch 并开启“免费发布商品”（覆盖 Gemini）；<br>
+        - 登录 Microsoft Merchant Center，一键关联 GMC 自动同步（覆盖 Copilot）；<br>
+        - 登录 Meta Commerce Manager，配置 Scheduled Feed 定时排程（覆盖 Meta AI）。
       </li>
-      <li><strong>第 2-3 天：提交 Perplexity 官方商家入驻</strong><br>提交官网 Merchant Form，填写中央 <code>google_feed.xml</code> 链接，并确保落地页 JSON-LD Product Schema 正确输出。</li>
-      <li><strong>第 3 天：搭建 Claude MCP 服务（选配）</strong><br>部署基于本地 Feed 缓存的轻量 MCP 检索服务，供 Claude 客户端或内部自动化接入。</li>
+      <li><strong>【第二优先级：确定性 70%，1-2 周内跟进】</strong><br>
+        - 检查独立站商品落地页（PDP）底层的 <code>Schema.org/Product</code> JSON-LD 标签；<br>
+        - 提交 Perplexity Merchant Program 官方入驻表单，提供中央 <code>google_feed.xml</code> 链接。
+      </li>
+      <li><strong>【第三优先级：战略留档 / SEO 常规维护】</strong><br>
+        - 提交 ChatGPT Merchants 申请表留档进 Waitlist，备妥技术规格但不赌审批时效；<br>
+        - 针对 Claude 及其他无商户系统的 AI：确保 <code>robots.txt</code> 允许爬取，做好独立站常规 SEO 即可。
+      </li>
     </ol>
   </section>
 
 </div>
 
 <footer>
-  <p>多平台 AI 购物与对话直连落地实施方案 · 基于标准 Feed 构建</p>
+  <p>多平台 AI 购物直连实施全景指南 · 基于标准 Google/Meta Feed 构建</p>
 </footer>
 
 </body>
